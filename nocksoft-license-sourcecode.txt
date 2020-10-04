@@ -1,0 +1,41 @@
+Nocksoft License for Source Code
+
+Updated:	2020-10-04
+
+Author:		Rafael Nockmann @ Nocksoft
+Contact:	https://nocksoft.de/kontakt/
+_____________________________________________________
+
+
+========
+German
+========
+
+Diese Lizenz zählt die Freiheiten und Pflichten auf, die einzuhalten sind, wenn Sie Quellcode von Nockosft, der unter dieser Lizenz veröffentlicht wird, verwenden möchten.
+
+Was Sie mit dem Quellcode dürfen:
+-Der Quellcode darf frei für private und kommerzielle Zwecke verwendet werden, solange der Kommentarbereich ganz oben in der Code-Datei nicht verändert wird.
+-Der Quellcode darf beliebig erweitert und abgeändert werden, solange im Header der Codedatei ein Verweis auf Nocksoft als Urheber erfolgt und der Link auf die ursprüngliche Downloadseite angegeben ist.
+
+Was Sie mit dem Quellcode nicht dürfen:
+-Der originale Quellcode darf nicht auf anderen Seiten zum Download angeboten werden. Als Alternative ist ein Link auf die jeweilige Seite von Nocksoft zu setzen.
+
+
+Generell gilt: Alles was nicht expliziert in dieser Lizenz geregelt ist, ist ohne weitere Zustimmung von Nocksoft nicht erlaubt.
+
+
+========
+English
+========
+
+This license enumerates the freedoms and obligations that must be observed if you wish to use source code from Nockosft which is published under this license.
+
+What you are allowed to do with the source code:
+-The source code may be used freely for private and commercial purposes as long as the comment area at the top of the code file is not changed.
+-The source code may be expanded and changed as long as there is a reference to Nocksoft as the author in the header of the code file and the link to the original download page is given.
+
+What you are not allowed to do with the source code:
+-The original source code may not be offered for download on other sites. As an alternative, a link can be placed on the respective Nocksoft page.
+
+
+Note: Everything that is not explicitly regulated in this license is not permitted without the further consent of Nocksoft.
