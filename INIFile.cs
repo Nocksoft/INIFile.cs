@@ -10,7 +10,7 @@
  *
  * Language: Visual C#
  *
- * License: https://nocksoft.de/downloads/_lizenzen/nocksoft-license-sourcecode.txt
+ * License: MIT license
  * 
  * Description:
  * Provides basic functions for working with INI files.
