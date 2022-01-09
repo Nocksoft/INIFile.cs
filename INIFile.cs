@@ -2,15 +2,16 @@
  * Copyright by Nocksoft
  * https://www.nocksoft.de
  * https://nocksoft.de/tutorials/visual-c-sharp-arbeiten-mit-ini-dateien/
- * https://github.com/Nocksoft/INIFile
+ * https://github.com/Nocksoft/INIFile.cs
  * -----------------------------------
  * Author:  Rafael Nockmann @ Nocksoft
- * Updated: 2017-08-23
+ * Updated: 2022-01-09
  * Version: 1.0.3
  *
  * Language: Visual C#
  *
  * License: MIT license
+ * License URL: https://github.com/Nocksoft/INIFile.cs/blob/master/LICENSE
  * 
  * Description:
  * Provides basic functions for working with INI files.
@@ -30,10 +31,10 @@ namespace Nocksoft.IO.ConfigFiles
         private string _File;
 
         /// <summary>
-        /// Aufruf des Konstruktors initialisiert ein Objekt der Klasse INIFile.
+        /// Call the constructor creates a new object of the INIFile class to work with INI files.
         /// </summary>
-        /// <param name="file">INI-Datei, auf der zugegriffen werden soll.</param>
-        /// <param name="createFile">Gibt an, ob die Datei erstellt werden soll, wenn diese nicht vorhanden ist.</param>
+        /// <param name="file">Name of INI file, which you want to access.</param>
+        /// <param name="createFile">Specifies whether the INI file should be created if it does not exist.</param>
         public INIFile(string file, bool createFile = false)
         {
             if (createFile == true && File.Exists(file) == false)
@@ -45,52 +46,50 @@ namespace Nocksoft.IO.ConfigFiles
             _File = file;
         }
 
-        #region Öffentliche Methoden
+        #region Public Methods
 
         /// <summary>
-        /// Entfernt alle Kommentare und leeren Zeilen aus einer kompletten Section und gibt diese zurück.
-        /// Die Methode ist nicht Case-sensitivity und ignoriert daher Groß- und Kleinschreibung.
-        /// Der Rückgabewert enthält keine Leerzeichen.
+        /// Removes all comments and empty lines from a complete section and returns the sections.
+        /// This method is not case-sensitive.
+        /// The return value does not contain any spaces at the beginning or at the end of a line.
         /// </summary>
-        /// <param name="section">Name der angeforderten Section.</param>
-        /// <param name="getComments">Gibt an, ob Kommentare berücksichtigt werden sollen.</param>
-        /// <returns>Gibt die komplette Section zurück.</returns>
-        public List<string> GetSection(string section, bool getComments = false)
+        /// <param name="section">Name of the requested section.</param>
+        /// <param name="includeComments">Specifies whether comments should also be returned.</param>
+        /// <returns>Returns the whole section.</returns>
+        public List<string> GetSection(string section, bool includeComments = false)
         {
-            // Stellt sicher, dass eine Section immer im folgenden Format vorliegt: [section]
             section = CheckSection(section);
 
             List<string> completeSection = new List<string>();
             bool sectionStart = false;
 
-            // Liest die Zieldatei ein
             string[] fileArray = File.ReadAllLines(_File);
 
             foreach (var item in fileArray)
             {
                 if (item.Length <= 0) continue;
 
-                // Wenn die gewünschte Section erreicht ist
+                // Beginning of section.
                 if (item.Replace(" ", "").ToLower() == section)
                 {
                     sectionStart = true;
                 }
-                // Wenn auf eine neue Section getroffen wird, wird die Schleife beendet
+                // Beginning of next section.
                 if (sectionStart == true && item.Replace(" ", "").ToLower() != section && item.Replace(" ", "").Substring(0, 1) == "[" && item.Replace(" ", "").Substring(item.Length - 1, 1) == "]")
                 {
                     break;
                 }
                 if (sectionStart == true)
                 {
-                    // Wenn der Eintrag kein Kommentar und kein leerer Eintrag ist, wird er der List<string> completeSection hinzugefügt
-                    if (getComments == false
+                    // Add the entry to the List<string> completeSection, if it is not a comment or an empty entry.
+                    if (includeComments == false
                         && item.Replace(" ", "").Substring(0, 1) != ";" && !string.IsNullOrWhiteSpace(item))
                     {
-                        completeSection.Add(ReplaceScpacesAtStartAndEnd(item));
+                        completeSection.Add(ReplaceSpacesAtStartAndEnd(item));
                     }
-                    if (getComments == true && !string.IsNullOrWhiteSpace(item))
+                    if (includeComments == true && !string.IsNullOrWhiteSpace(item))
                     {
-                        completeSection.Add(ReplaceScpacesAtStartAndEnd(item));
+                        completeSection.Add(ReplaceSpacesAtStartAndEnd(item));
                     }
                 }
             }
@@ -98,16 +97,15 @@ namespace Nocksoft.IO.ConfigFiles
         }
 
         /// <summary>
-        /// Die Methode gibt einen Wert zum dazugehörigen Key zurück.
-        /// Die Methode ist nicht Case-sensitivity und ignoriert daher Groß- und Kleinschreibung.
+        /// The method returns a value for the associated key.
+        /// This method is not case-sensitive.
         /// </summary>
-        /// <param name="section">Name der angeforderten Section.</param>
-        /// <param name="key">Name des angeforderten Keys.</param>
-        /// <param name="convertKeyToLower">Wenn "true" übergeben wird, wird der Rückgabewert in Kleinbuchstaben zurückgegeben.</param>
-        /// <returns>Gibt, wenn vorhanden, den Wert zu dem angegebenen Key in der angegeben Section zurück.</returns>
+        /// <param name="section">Name of the requested section.</param>
+        /// <param name="key">Name of the requested key.</param>
+        /// <param name="convertValueToLower">If "true" is passed, the value will be returned in lowercase letters.</param>
+        /// <returns>Returns the value for the specified key in the specified section, if available, otherwise null.</returns>
         public string GetValue(string section, string key, bool convertValueToLower = false)
         {
-            // Stellt sicher, dass eine Section immer im folgenden Format vorliegt: [section]
             section = CheckSection(section);
             key = key.ToLower();
 
@@ -115,7 +113,7 @@ namespace Nocksoft.IO.ConfigFiles
 
             foreach (var item in completeSection)
             {
-                // In Schleife fortfahren, wenn kein Key
+                // Continue if entry is no key.
                 if (!item.Contains("=") && item.Contains("[") && item.Contains("]")) continue;
 
                 string[] keyAndValue = item.Split(new string[] { "=" }, StringSplitOptions.RemoveEmptyEntries);
@@ -132,91 +130,85 @@ namespace Nocksoft.IO.ConfigFiles
         }
 
         /// <summary>
-        /// Ändert einen Wert des dazugehörigen Schlüssels in der angegebenen Section.
+        /// Set or add a value of the associated key in the specified section.
+        /// This method is not case-sensitive.
         /// </summary>
-        /// <param name="section">Name der Section, in dem sich der Schlüssel befindet.</param>
-        /// <param name="key">Name des Schlüssels, dessen Wert geändert werden soll.</param>
-        /// <param name="value">Neuer Wert.</param>
-        /// <param name="convertValueToLower">Wenn "true" übergeben wird, wird der Wert in Kleinbuchstaben gespeichert.</param>
+        /// <param name="section">Name of the section.</param>
+        /// <param name="key">Name of the key.</param>
+        /// <param name="value">Value to save.</param>
+        /// <param name="convertValueToLower">If "true" is passed, the value will be saved in lowercase letters.</param>
         public void SetValue(string section, string key, string value, bool convertValueToLower = false)
         {
-            // Stellt sicher, dass eine Section immer im folgenden Format vorliegt: [section]
-            section = CheckSection(section);
-            string keyToLower = key.ToLower();
+            section = CheckSection(section, false);
+            string sectionToLower = section.ToLower();
 
-            // Prüft, ob die gesuchte Section gefunden wurde
             bool sectionFound = false;
 
-            List<string> newFileContent = new List<string>();
+            List<string> iniFileContent = new List<string>();
 
-            // Liest die Zieldatei ein
             string[] fileLines = File.ReadAllLines(_File);
 
-            // Wenn die Zieldatei leer ist...
+            // Creates a new INI file if none exists.
             if (fileLines.Length <= 0)
             {
-                newFileContent = CreateSection(newFileContent, section, value, key, convertValueToLower);
-                WriteFile(newFileContent);
+                iniFileContent = AddSection(iniFileContent, section, key, value, convertValueToLower);
+                WriteFile(iniFileContent);
                 return;
             }
 
-            // ...sonst wird jede Zeile durchsucht
             for (int i = 0; i < fileLines.Length; i++)
             {
-                // Option 1 -> Gewünschte Section wurde (noch) nicht gefunden
-                if (fileLines[i].Replace(" ", "").ToLower() != section)
+                // Possibility 1: The desired section has not (yet) been found.
+                if (fileLines[i].Replace(" ", "").ToLower() != sectionToLower)
                 {
-                    newFileContent.Add(fileLines[i]);
-                    // Wenn Section nicht vorhanden ist, wird diese erzeugt
-                    if (i == fileLines.Length - 1 && fileLines[i].Replace(" ", "").ToLower() != section && sectionFound == false)
+                    iniFileContent.Add(fileLines[i]);
+                    // If a section does not exist, the section will be created.
+                    if (i == fileLines.Length - 1 && fileLines[i].Replace(" ", "").ToLower() != sectionToLower && sectionFound == false)
                     {
-                        newFileContent.Add(null);
-                        newFileContent = CreateSection(newFileContent, section, value, key, convertValueToLower);
+                        iniFileContent.Add(null);
+                        iniFileContent = AddSection(iniFileContent, section, key, value, convertValueToLower);
                         break;
                     }
                     continue;
                 }
 
 
-                // Option 2 -> Gewünschte Section wurde gefunden
+                // Possibility 2 -> Desired section was found.
                 sectionFound = true;
 
-                // Enthält die komplette Section, in der sich der Zielschlüssel befindet
-                List<string> targetSection = GetSection(section, true);
+                // Get the complete section in which the target key may be.
+                List<string> targetSection = GetSection(sectionToLower, true);
 
-                // Jeden Eintrag in der Section, in der sich der Zielschlüssel befindet, durchgehen
                 for (int x = 0; x < targetSection.Count; x++)
                 {
                     string[] targetKey = targetSection[x].Split(new string[] { "=" }, StringSplitOptions.None);
-                    // Wenn der Zielschlüssel gefunden ist
-                    if (targetKey[0].ToLower() == keyToLower)
+                    // When the target key is found.
+                    if (targetKey[0].ToLower() == key.ToLower())
                     {
-                        // Prüft, in welcher Schreibweise die Werte abgespeichert werden sollen
                         if (convertValueToLower == true)
                         {
-                            newFileContent.Add(keyToLower + "=" + value.ToLower());
+                            iniFileContent.Add(key + "=" + value.ToLower());
                         }
                         else
                         {
-                            newFileContent.Add(key + "=" + value);
+                            iniFileContent.Add(key + "=" + value);
                         }
                         i = i + x;
                         break;
                     }
                     else
                     {
-                        newFileContent.Add(targetSection[x]);
-                        // Wenn Key nicht vorhanden ist, wird dieser erzeugt
-                        if (x == targetSection.Count - 1 && targetKey[0].ToLower() != keyToLower)
+                        iniFileContent.Add(targetSection[x]);
+                        // If the target key is not found, it will be created.
+                        if (x == targetSection.Count - 1 && targetKey[0].ToLower() != key.ToLower())
                         {
-                            // Prüft, in welcher Schreibweise die Werte abgespeichert werden sollen
                             if (convertValueToLower == true)
                             {
-                                newFileContent.Add(keyToLower + "=" + value.ToLower());
+                                iniFileContent.Add(key + "=" + value.ToLower());
                             }
                             else
                             {
-                                newFileContent.Add(key + "=" + value);
+                                iniFileContent.Add(key + "=" + value);
                             }
                             i = i + x;
                             break;
@@ -225,22 +217,26 @@ namespace Nocksoft.IO.ConfigFiles
                 }
             }
 
-            WriteFile(newFileContent);
+            WriteFile(iniFileContent);
         }
 
         #endregion
 
-        #region Private Methoden
+        #region Private Methods
 
         /// <summary>
-        /// Stellt sicher, dass eine Section immer im folgenden Format vorliegt: [section]
+        /// Ensures that a section is always in the following format: [section].
         /// </summary>
-        /// <param name="section">Section, die auf korrektes Format geprüft werden soll.</param>
-        /// <returns>Gibt Section in dieser Form zurück: [section]</returns>
-        private string CheckSection(string section)
+        /// <param name="section">Section to be checked for correct format.</param>
+        /// <param name="convertToLower">Specifies whether the section should be vonverted in lower case letters.</param>
+        /// <returns>Returns section in this form: [section].</returns>
+        private string CheckSection(string section, bool convertToLower = true)
         {
-            section = section.ToLower();
-            if (section.Substring(0, 1) != "[" && section.Substring(section.Length - 1, 1) != "]")
+            if (convertToLower == true)
+            {
+                section = section.ToLower();
+            }
+            if (!section.StartsWith("[") && !section.EndsWith("]"))
             {
                 section = "[" + section + "]";
             }
@@ -248,13 +244,13 @@ namespace Nocksoft.IO.ConfigFiles
         }
 
         /// <summary>
-        /// Entfernt voranstehende und hintenstehende Leerzeichen bei Sections, Keys und Values.
+        /// Removes leading and trailing spaces from sections, keys and values.
         /// </summary>
-        /// <param name="item">String, der gekürzt werden soll.</param>
-        /// <returns>Gibt einen gekürzten String zurück.</returns>
-        private string ReplaceScpacesAtStartAndEnd(string item)
+        /// <param name="item">String to be trimmed.</param>
+        /// <returns>Returns the trimmed string.</returns>
+        private string ReplaceSpacesAtStartAndEnd(string item)
         {
-            // Wenn der Eintrag einen Schlüssel und einen Wert hat
+            // If the string has a key and a value.
             if (item.Contains("=") && !item.Contains("[") && !item.Contains("]"))
             {
                 string[] keyAndValue = item.Split(new string[] { "=" }, StringSplitOptions.None);
@@ -265,29 +261,24 @@ namespace Nocksoft.IO.ConfigFiles
         }
 
         /// <summary>
-        /// Legt eine neue Section an.
+        /// Adds a new section with key value pair.
         /// </summary>
-        /// <param name="newSettings">Liste newSettings aus SetValue.</param>
-        /// <param name="section">section die angelegt werden soll.</param>
-        /// <param name="value">Wert der hinzugefügt werden soll.</param>
-        /// <param name="key">Schlüssel der hinzugefügt werden soll.</param>
-        /// <param name="convertValueToLower">Gibt an, ob Schlüssel und Wert in Kleinbuchstaben abgespeichert werden sollen.</param>
-        /// <returns></returns>
-        private List<string> CreateSection(List<string> newSettings, string section, string value, string key, bool convertValueToLower)
+        /// <param name="iniFileContent">List iniFileContent from SetValue.</param>
+        /// <param name="section">Section to be created.</param>
+        /// <param name="key">Key to be added.</param>
+        /// <param name="value">Value to be added.</param>
+        /// <param name="convertValueToLower">Specifies whether the key and value should be saved in lower case letters.</param>
+        /// <returns>Returns the new created section with key value pair.</returns>
+        private List<string> AddSection(List<string> iniFileContent, string section, string key, string value, bool convertValueToLower)
         {
-            string keyToLower = key.ToLower();
-
-            newSettings.Add(section);
-            // Prüft, in welcher Schreibweise die Werte abgespeichert werden sollen
             if (convertValueToLower == true)
             {
-                newSettings.Add(keyToLower + "=" + value.ToLower());
+                value = value.ToLower();
             }
-            else
-            {
-                newSettings.Add(key + "=" + value);
-            }
-            return newSettings;
+
+            iniFileContent.Add(section);
+            iniFileContent.Add($"{key}={value}");
+            return iniFileContent;
         }
 
         private void WriteFile(List<string> content)
